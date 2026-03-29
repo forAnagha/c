@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>A Poem for Anagha 🌸</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Sans:wght@300;400&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{--pink:#ff6b9d;--deep:#1a0a12;}
+
+html{scroll-behavior:smooth;}
+body{
+  background:var(--deep);
+  color:rgba(255,255,255,0.88);
+  font-family:'Cormorant Garamond',serif;
+  min-height:100vh;
+  overflow-x:hidden;
+  overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+}
+
+canvas#bg{position:fixed;inset:0;z-index:0;pointer-events:none;}
+
+/* back nav */
+#topbar{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:18px 24px;
+  background:linear-gradient(to bottom, rgba(26,10,18,0.9) 60%, transparent);
+}
+.back-link{
+  font-family:'DM Sans',sans-serif;font-size:12px;
+  letter-spacing:0.15em;text-transform:uppercase;
+  color:rgba(255,255,255,0.4);text-decoration:none;
+  transition:color 0.3s;
+}
+.back-link:hover{color:#ff6b9d;}
+.page-title-sm{
+  font-size:14px;font-weight:300;letter-spacing:0.15em;
+  color:rgba(255,255,255,0.3);
+  text-transform:uppercase;font-family:'DM Sans',sans-serif;
+}
+
+/* nav pills */
+.nav-pills{
+  position:fixed;top:18px;left:50%;transform:translateX(-50%);
+  display:flex;gap:10px;z-index:110;
+}
+.pill{
+  padding:7px 16px;border:1px solid rgba(255,107,157,0.3);
+  border-radius:100px;background:rgba(255,255,255,0.03);
+  color:rgba(255,255,255,0.5);text-decoration:none;
+  font-family:'DM Sans',sans-serif;font-size:11px;
+  letter-spacing:0.12em;text-transform:uppercase;
+  transition:all 0.3s;backdrop-filter:blur(10px);
+}
+.pill:hover,.pill.active{
+  border-color:#ff6b9d;color:#ff6b9d;
+  background:rgba(255,107,157,0.08);
+}
+
+/* content wrapper */
+.wrapper{
+  position:relative;z-index:10;
+  max-width:680px;margin:0 auto;
+  padding:120px 32px 160px;
+}
+
+/* header */
+.poem-header{
+  text-align:center;margin-bottom:80px;
+}
+.poem-header h1{
+  font-size:clamp(28px,7vw,52px);
+  font-weight:300;letter-spacing:0.1em;
+  background:linear-gradient(135deg,#ff6b9d,#ffb3d1,#ff6b9d);
+  background-size:200%;
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  animation:sh 4s linear infinite;
+  margin-bottom:16px;
+}
+@keyframes sh{0%{background-position:0%}100%{background-position:200%}}
+.poem-header .sub{
+  font-family:'DM Sans',sans-serif;font-size:12px;
+  letter-spacing:0.2em;text-transform:uppercase;
+  color:rgba(255,255,255,0.25);
+}
+
+/* divider */
+.divider{
+  display:flex;align-items:center;gap:16px;
+  margin:0 auto 60px;max-width:240px;
+}
+.divider-line{flex:1;height:1px;background:rgba(255,107,157,0.2);}
+.divider-icon{color:#ff6b9d;font-size:14px;}
+
+/* poem stanzas */
+.stanza{
+  margin-bottom:52px;
+  opacity:0;transform:translateY(30px);
+  transition:opacity 0.9s ease, transform 0.9s ease;
+}
+.stanza.visible{opacity:1;transform:translateY(0);}
+
+.stanza p{
+  font-size:clamp(18px,3.5vw,26px);
+  font-weight:300;line-height:1.85;
+  color:rgba(255,255,255,0.85);
+}
+.stanza p em{
+  font-style:italic;color:#ffb3d1;
+}
+.stanza p strong{
+  font-weight:400;color:#ff6b9d;
+}
+.stanza .label{
+  font-family:'DM Sans',sans-serif;
+  font-size:10px;letter-spacing:0.3em;text-transform:uppercase;
+  color:rgba(255,107,157,0.4);
+  margin-bottom:16px;
+  display:block;
+}
+
+/* ending */
+.ending{
+  text-align:center;margin-top:80px;
+  padding-top:60px;
+  border-top:1px solid rgba(255,107,157,0.12);
+}
+.ending .big{
+  font-size:clamp(24px,6vw,44px);font-weight:300;
+  color:#ff6b9d;letter-spacing:0.05em;
+  margin-bottom:20px;
+}
+.ending .small{
+  font-style:italic;color:rgba(255,255,255,0.4);
+  font-size:17px;line-height:1.6;
+}
+
+/* footer nav */
+.footer-nav{
+  position:fixed;bottom:0;left:0;right:0;
+  display:flex;justify-content:center;gap:12px;
+  padding:20px 24px 28px;
+  background:linear-gradient(to top, rgba(26,10,18,0.95) 50%, transparent);
+  z-index:100;
+}
+.footer-link{
+  padding:10px 22px;border:1px solid rgba(255,107,157,0.35);
+  border-radius:100px;background:rgba(255,255,255,0.03);
+  color:rgba(255,255,255,0.6);text-decoration:none;
+  font-family:'DM Sans',sans-serif;font-size:12px;
+  letter-spacing:0.1em;text-transform:uppercase;
+  transition:all 0.3s;backdrop-filter:blur(10px);
+}
+.footer-link:hover{border-color:#ff6b9d;color:#ff6b9d;background:rgba(255,107,157,0.08);}
+
+/* hearts */
+.fheart{
+  position:fixed;pointer-events:none;z-index:5;
+  animation:rise 7s linear forwards;
+}
+@keyframes rise{
+  0%{transform:translateY(0) rotate(-15deg);opacity:0.25;}
+  100%{transform:translateY(-100vh) rotate(15deg);opacity:0;}
+}
+
+/* click burst */
+.burst{
+  position:fixed;pointer-events:none;z-index:200;
+  font-size:20px;
+  transition:all 0.9s cubic-bezier(0.2,0,0.8,1);
+}
+</style>
+</head>
+<body>
+
+<canvas id="bg"></canvas>
+<audio id="bgMusic" loop><source src="music1.mpeg" type="audio/mpeg"></audio>
+
+<div id="topbar">
+  <a href="index.html" class="back-link">← back</a>
+  <span class="page-title-sm">poem</span>
+  <span style="width:60px"></span>
+</div>
+
+<div class="nav-pills">
+  <a href="gallery.html" class="pill">gallery</a>
+  <a href="reasons.html" class="pill">reasons</a>
+</div>
+
+<div class="wrapper">
+
+  <div class="poem-header">
+    <h1>A Poem for Anagha</h1>
+    <div class="sub">written with everything I have</div>
+  </div>
+
+  <div class="divider"><div class="divider-line"></div><div class="divider-icon">🌸</div><div class="divider-line"></div></div>
+
+  <div class="stanza">
+    <span class="label">I</span>
+    <p>
+      Anagha isn't the type who tries to stand out —<br>
+      <em>she just naturally does.</em><br><br>
+      Different from everyone else<br>
+      in the best way possible.
+    </p>
+  </div>
+
+  <div class="stanza">
+    <span class="label">II</span>
+    <p>
+      I don't think I've ever seen her be wrong,<br>
+      and honestly I don't even know how…<br>
+      <em>Sometimes it feels like she isn't even real.</em><br><br>
+      But at the same time<br>
+      she's the most real person I've ever met.
+    </p>
+  </div>
+
+  <div class="stanza">
+    <span class="label">III</span>
+    <p>
+      She can't fake anything.<br>
+      <em>Her smile isn't forced.</em><br>
+      Her vibes are never pretend.<br><br>
+      There's something so pure about her —<br>
+      the way she talks,<br>
+      the way she cares,<br>
+      <strong>the way she simply exists.</strong>
+    </p>
+  </div>
+
+  <div class="stanza">
+    <span class="label">IV</span>
+    <p>
+      Still, she tries to hide her pain —<br>
+      to stay strong all the time,<br>
+      <em>like she doesn't want anyone to worry.</em><br><br>
+      She carries more than she shows,<br>
+      and that quiet strength<br>
+      is one of the most beautiful things about her.
+    </p>
+  </div>
+
+  <div class="stanza">
+    <span class="label">V</span>
+    <p>
+      She's like an angel,<br>
+      not because she's perfect —<br>
+      <em>though sometimes it honestly feels like she is —</em><br><br>
+      but because her <strong>heart</strong> is.
+    </p>
+  </div>
+
+  <div class="stanza">
+    <span class="label">VI</span>
+    <p>
+      She's the most beautiful woman in my life.<br>
+      Not just for how she looks,<br>
+      but for <em>who she is</em> inside.<br><br>
+      And I'm so grateful<br>
+      that somehow the universe<br>
+      decided I deserved to know her.
+    </p>
+  </div>
+
+  <div class="stanza">
+    <span class="label">VII</span>
+    <p>
+      She feels unreal sometimes…<br>
+      but one thing I know for certain —<br>
+      <em>she could never be fake.</em><br><br>
+      <strong>She is real, and she is mine,</strong><br>
+      and I will never stop being amazed by that.
+    </p>
+  </div>
+
+  <div class="ending stanza">
+    <div class="big">I love you, Anagha. ❤️</div>
+    <div class="small">
+      I tried my best with words…<br>
+      but I know no words could ever fully describe you.
+    </div>
+  </div>
+
+</div>
+
+<div class="footer-nav">
+  <a href="index.html" class="footer-link">← home</a>
+  <a href="gallery.html" class="footer-link">gallery ✨</a>
+  <a href="reasons.html" class="footer-link">reasons 💌</a>
+</div>
+
+<script>
+// music
+const music = document.getElementById('bgMusic');
+window.addEventListener('load',()=>{
+  const t = sessionStorage.getItem('mTime');
+  if(t) music.currentTime = parseFloat(t);
+  music.volume=0;
+  music.play().then(()=>{
+    let v=0,fade=setInterval(()=>{
+      if(v<1){ v=Math.min(1,v+0.04); music.volume=v; } else clearInterval(fade);
+    },80);
+  }).catch(()=>{
+    const resume=()=>{ music.play(); document.removeEventListener('click',resume); };
+    document.addEventListener('click',resume);
+  });
+});
+setInterval(()=>{ sessionStorage.setItem('mTime',music.currentTime); },1000);
+
+// scroll reveal
+const stanzas = document.querySelectorAll('.stanza');
+const observer = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('visible'); });
+},{ threshold:0.15 });
+stanzas.forEach(s=>observer.observe(s));
+
+// particles
+const canvas=document.getElementById('bg'), ctx=canvas.getContext('2d');
+let W,H,pts=[];
+function resize(){ W=canvas.width=window.innerWidth; H=canvas.height=window.innerHeight; }
+resize(); window.addEventListener('resize',resize);
+class Pt{
+  constructor(){ this.reset(); }
+  reset(){ this.x=Math.random()*W; this.y=H+10; this.r=Math.random()*1.2+0.3; this.alpha=Math.random()*0.35+0.05; this.speed=Math.random()*0.2+0.05; this.drift=(Math.random()-0.5)*0.25; }
+  tick(){ this.y-=this.speed; this.x+=this.drift; if(this.y<-10) this.reset(); }
+  draw(){ ctx.beginPath(); ctx.arc(this.x,this.y,this.r,0,Math.PI*2); ctx.fillStyle=`rgba(255,107,157,${this.alpha})`; ctx.fill(); }
+}
+for(let i=0;i<70;i++) pts.push(new Pt());
+function loop(){ ctx.clearRect(0,0,W,H); pts.forEach(p=>{ p.tick(); p.draw(); }); requestAnimationFrame(loop); }
+loop();
+
+// floating hearts
+const em=['❤️','🩷','💗','💖','🌸'];
+function spawnH(){
+  const h=document.createElement('div'); h.className='fheart';
+  h.innerHTML=em[Math.floor(Math.random()*em.length)];
+  h.style.cssText=`left:${Math.random()*100}vw;bottom:-30px;font-size:${12+Math.random()*18}px;animation-duration:${5+Math.random()*4}s;position:fixed;pointer-events:none;`;
+  document.body.appendChild(h); setTimeout(()=>h.remove(),9000);
+}
+setInterval(spawnH,1200);
+
+// burst
+document.addEventListener('click',(e)=>{
+  for(let i=0;i<6;i++){
+    const h=document.createElement('div'); h.className='burst';
+    h.innerHTML=em[Math.floor(Math.random()*em.length)];
+    h.style.left=e.clientX+'px'; h.style.top=e.clientY+'px';
+    document.body.appendChild(h);
+    const ang=Math.random()*Math.PI*2, d=50+Math.random()*70;
+    setTimeout(()=>{ h.style.transform=`translate(${Math.cos(ang)*d}px,${Math.sin(ang)*d}px)`; h.style.opacity='0'; },10);
+    setTimeout(()=>h.remove(),950);
+  }
+});
+</script>
+</body>
+</html>

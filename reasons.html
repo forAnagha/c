@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Why Anagha is Amazing 💌</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Sans:wght@300;400&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{--pink:#ff6b9d;--deep:#1a0a12;}
+html{scroll-behavior:smooth;}
+body{background:var(--deep);color:#fff;font-family:'Cormorant Garamond',serif;min-height:100vh;overflow-x:hidden;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+
+canvas#bg{position:fixed;inset:0;z-index:0;pointer-events:none;}
+
+/* NAV */
+#topbar{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:16px 24px;background:linear-gradient(to bottom,rgba(26,10,18,0.9) 60%,transparent);}
+.back{font-family:'DM Sans',sans-serif;font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:rgba(255,255,255,0.35);text-decoration:none;transition:color 0.3s;}
+.back:hover{color:#ff6b9d;}
+.pills{display:flex;gap:8px;}
+.pill{padding:7px 14px;border:1px solid rgba(255,107,157,0.3);border-radius:100px;background:rgba(255,255,255,0.03);color:rgba(255,255,255,0.45);text-decoration:none;font-family:'DM Sans',sans-serif;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;transition:all 0.3s;backdrop-filter:blur(10px);}
+.pill:hover{border-color:#ff6b9d;color:#ff6b9d;}
+
+/* WRAPPER */
+.wrapper{position:relative;z-index:10;max-width:780px;margin:0 auto;padding:110px 24px 120px;}
+
+/* HEADER */
+.page-header{text-align:center;margin-bottom:60px;}
+.page-header h1{font-size:clamp(26px,6vw,48px);font-weight:300;letter-spacing:0.08em;background:linear-gradient(135deg,#ff6b9d,#ffb3d1,#ff6b9d);background-size:200%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:sh 4s linear infinite;margin-bottom:12px;}
+@keyframes sh{0%{background-position:0%}100%{background-position:200%}}
+.page-header .sub{font-family:'DM Sans',sans-serif;font-size:12px;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.25);}
+
+.divider{display:flex;align-items:center;gap:16px;margin:0 auto 50px;max-width:200px;}
+.divider-line{flex:1;height:1px;background:rgba(255,107,157,0.2);}
+
+/* CARD GRID */
+.card-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+  gap:16px;
+  margin-bottom:60px;
+}
+
+/* FLIP CARD */
+.flip-card{
+  height:180px;
+  perspective:1000px;
+  cursor:pointer;
+}
+.flip-inner{
+  width:100%;height:100%;
+  position:relative;
+  transform-style:preserve-3d;
+  transition:transform 0.6s cubic-bezier(0.4,0,0.2,1);
+}
+.flip-card.flipped .flip-inner{transform:rotateY(180deg);}
+
+.flip-front, .flip-back{
+  position:absolute;inset:0;
+  border-radius:16px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:24px;
+  backface-visibility:hidden;
+  -webkit-backface-visibility:hidden;
+}
+
+.flip-front{
+  background:rgba(255,255,255,0.03);
+  border:1px solid rgba(255,107,157,0.18);
+  transition:background 0.3s, border-color 0.3s;
+}
+.flip-card:hover .flip-front{
+  background:rgba(255,107,157,0.05);
+  border-color:rgba(255,107,157,0.35);
+}
+.flip-front .num{
+  font-family:'DM Sans',sans-serif;font-size:11px;letter-spacing:0.25em;
+  color:rgba(255,107,157,0.4);text-transform:uppercase;margin-bottom:12px;
+}
+.flip-front .icon{font-size:36px;margin-bottom:10px;}
+.flip-front .tap-hint{
+  font-family:'DM Sans',sans-serif;font-size:10px;letter-spacing:0.15em;
+  color:rgba(255,255,255,0.2);text-transform:uppercase;margin-top:10px;
+}
+
+.flip-back{
+  background:linear-gradient(135deg,rgba(255,107,157,0.12),rgba(255,107,157,0.04));
+  border:1px solid rgba(255,107,157,0.3);
+  transform:rotateY(180deg);
+  text-align:center;
+}
+.flip-back .reason-text{
+  font-size:clamp(14px,2.5vw,18px);font-weight:300;line-height:1.65;
+  color:rgba(255,255,255,0.88);
+}
+.flip-back .reason-text em{font-style:italic;color:#ffb3d1;}
+.flip-back .reason-text strong{font-weight:400;color:#ff6b9d;}
+
+/* progress counter */
+.progress-section{
+  text-align:center;margin-bottom:40px;
+  opacity:0;transform:translateY(10px);
+  transition:opacity 0.5s, transform 0.5s;
+}
+.progress-section.visible{opacity:1;transform:translateY(0);}
+.progress-bar{width:200px;height:2px;background:rgba(255,255,255,0.08);border-radius:2px;margin:0 auto 12px;overflow:hidden;}
+.progress-fill{height:100%;background:linear-gradient(90deg,#ff6b9d,#ffb3d1);border-radius:2px;transition:width 0.6s ease;}
+.progress-text{font-family:'DM Sans',sans-serif;font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:rgba(255,255,255,0.3);}
+
+/* ending message */
+.ending-msg{
+  text-align:center;padding:40px;
+  opacity:0;transform:translateY(20px);
+  transition:opacity 0.8s, transform 0.8s;
+}
+.ending-msg.visible{opacity:1;transform:translateY(0);}
+.ending-msg .big{font-size:clamp(22px,5vw,38px);font-weight:300;color:#ff6b9d;line-height:1.4;margin-bottom:16px;}
+.ending-msg .small{font-style:italic;color:rgba(255,255,255,0.35);font-size:17px;}
+
+/* footer */
+.footer-nav{position:fixed;bottom:0;left:0;right:0;display:flex;justify-content:center;gap:12px;padding:18px 24px 26px;background:linear-gradient(to top,rgba(26,10,18,0.95) 50%,transparent);z-index:100;}
+.footer-link{padding:10px 22px;border:1px solid rgba(255,107,157,0.35);border-radius:100px;background:rgba(255,255,255,0.03);color:rgba(255,255,255,0.6);text-decoration:none;font-family:'DM Sans',sans-serif;font-size:12px;letter-spacing:0.1em;text-transform:uppercase;transition:all 0.3s;backdrop-filter:blur(10px);}
+.footer-link:hover{border-color:#ff6b9d;color:#ff6b9d;background:rgba(255,107,157,0.08);}
+
+/* hearts */
+.fheart{position:fixed;pointer-events:none;z-index:5;animation:rise 7s linear forwards;}
+@keyframes rise{0%{transform:translateY(0) rotate(-15deg);opacity:0.25;}100%{transform:translateY(-100vh) rotate(15deg);opacity:0;}}
+.burst{position:fixed;pointer-events:none;z-index:300;font-size:20px;transition:all 0.9s cubic-bezier(0.2,0,0.8,1);}
+</style>
+</head>
+<body>
+<canvas id="bg"></canvas>
+<audio id="bgMusic" loop><source src="music1.mpeg" type="audio/mpeg"></audio>
+
+<div id="topbar">
+  <a href="index.html" class="back">← home</a>
+  <div class="pills">
+    <a href="poem.html" class="pill">poem</a>
+    <a href="gallery.html" class="pill">gallery</a>
+  </div>
+</div>
+
+<div class="wrapper">
+
+  <div class="page-header">
+    <h1>Why Anagha is Amazing</h1>
+    <div class="sub">tap each card to reveal ✦</div>
+  </div>
+
+  <div class="divider"><div class="divider-line"></div><div style="color:#ff6b9d;font-size:12px;">💌</div><div class="divider-line"></div></div>
+
+  <div class="progress-section visible">
+    <div class="progress-bar"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
+    <div class="progress-text" id="prog-text">0 of 12 discovered</div>
+  </div>
+
+  <div class="card-grid" id="card-grid"></div>
+
+  <div class="ending-msg" id="ending">
+    <div class="big">You really are all of this<br>and so much more. ❤️</div>
+    <div class="small">I could fill a thousand cards and still not be done.</div>
+  </div>
+
+</div>
+
+<div class="footer-nav">
+  <a href="index.html" class="footer-link">← home</a>
+  <a href="poem.html" class="footer-link">poem 🌸</a>
+  <a href="gallery.html" class="footer-link">gallery ✨</a>
+</div>
+
+<script>
+const reasons = [
+  { icon:'✨', label:'reason 01', text:'She\'s authentic in a way that\'s <em>incredibly rare</em> — you can feel it the moment you talk to her.' },
+  { icon:'💫', label:'reason 02', text:'Her smile can turn even the worst day into <strong>the best</strong> one.' },
+  { icon:'🌸', label:'reason 03', text:'She\'s kind — <em>genuinely, deeply, selflessly kind</em> — and she doesn\'t even realise how special that is.' },
+  { icon:'💡', label:'reason 04', text:'She\'s so intelligent it\'s a little unfair. Like, how is she <em>always right?</em>' },
+  { icon:'🤍', label:'reason 05', text:'She has a pure heart. She doesn\'t hold grudges. She forgives. She <strong>loves fiercely</strong>.' },
+  { icon:'🌊', label:'reason 06', text:'There\'s a calmness about her that makes everyone around her feel <em>safe and at ease.</em>' },
+  { icon:'🔥', label:'reason 07', text:'She\'s strong. <em>Quietly, unshowingly strong</em> — she carries things no one even knows about.' },
+  { icon:'🎨', label:'reason 08', text:'She has taste. In people, in things, in <strong>everything</strong>. It\'s effortless and elegant.' },
+  { icon:'💬', label:'reason 09', text:'Talking to her never gets old. <em>Hours feel like minutes</em> every single time.' },
+  { icon:'🌟', label:'reason 10', text:'She <strong>makes me want to be better</strong> — without ever saying a word about it.' },
+  { icon:'🩷', label:'reason 11', text:'She cares about the people she loves so deeply that <em>you can feel it</em> in every little thing she does.' },
+  { icon:'❤️', label:'reason 12', text:'She\'s <strong>the most beautiful person I know</strong> — inside and out — and I am so lucky to love her.' },
+];
+
+let flippedCount = 0;
+const grid = document.getElementById('card-grid');
+const progFill = document.getElementById('prog-fill');
+const progText = document.getElementById('prog-text');
+const ending = document.getElementById('ending');
+
+reasons.forEach((r, i) => {
+  const card = document.createElement('div');
+  card.className = 'flip-card';
+  card.innerHTML = `
+    <div class="flip-inner">
+      <div class="flip-front">
+        <span class="num">${r.label}</span>
+        <span class="icon">${r.icon}</span>
+        <span class="tap-hint">tap to reveal</span>
+      </div>
+      <div class="flip-back">
+        <p class="reason-text">${r.text}</p>
+      </div>
+    </div>
+  `;
+  card.addEventListener('click', () => {
+    if(!card.classList.contains('flipped')){
+      card.classList.add('flipped');
+      flippedCount++;
+      const pct = (flippedCount / reasons.length * 100);
+      progFill.style.width = pct + '%';
+      progText.textContent = flippedCount + ' of ' + reasons.length + ' discovered';
+      burstAt(event.clientX, event.clientY);
+      if(flippedCount === reasons.length){
+        setTimeout(()=>{ ending.classList.add('visible'); },600);
+      }
+    } else {
+      card.classList.remove('flipped');
+      flippedCount--;
+      const pct = (flippedCount / reasons.length * 100);
+      progFill.style.width = pct + '%';
+      progText.textContent = flippedCount + ' of ' + reasons.length + ' discovered';
+      ending.classList.remove('visible');
+    }
+  });
+  grid.appendChild(card);
+});
+
+// music
+const music = document.getElementById('bgMusic');
+window.addEventListener('load', () => {
+  const t = sessionStorage.getItem('mTime'); if(t) music.currentTime = parseFloat(t);
+  music.volume = 0;
+  music.play().then(() => {
+    let v=0, f=setInterval(()=>{ if(v<1){v=Math.min(1,v+0.04);music.volume=v;}else clearInterval(f); },80);
+  }).catch(() => {
+    const r = () => { music.play(); document.removeEventListener('click', r); };
+    document.addEventListener('click', r);
+  });
+});
+setInterval(() => { sessionStorage.setItem('mTime', music.currentTime); }, 1000);
+
+// particles
+const canvas=document.getElementById('bg'),ctx=canvas.getContext('2d');
+let W,H,pts=[];
+function resize(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight;}
+resize();window.addEventListener('resize',resize);
+class Pt{constructor(){this.reset();}reset(){this.x=Math.random()*W;this.y=H+10;this.r=Math.random()*1.3+0.3;this.alpha=Math.random()*0.3+0.05;this.speed=Math.random()*0.2+0.06;this.drift=(Math.random()-0.5)*0.25;}tick(){this.y-=this.speed;this.x+=this.drift;if(this.y<-10)this.reset();}draw(){ctx.beginPath();ctx.arc(this.x,this.y,this.r,0,Math.PI*2);ctx.fillStyle=`rgba(255,107,157,${this.alpha})`;ctx.fill();}}
+for(let i=0;i<70;i++)pts.push(new Pt());
+function loop(){ctx.clearRect(0,0,W,H);pts.forEach(p=>{p.tick();p.draw();});requestAnimationFrame(loop);}
+loop();
+
+const em=['❤️','🩷','💗','💖','🌸','✨'];
+function spawnH(){const h=document.createElement('div');h.className='fheart';h.innerHTML=em[Math.floor(Math.random()*em.length)];h.style.cssText=`left:${Math.random()*100}vw;bottom:-30px;font-size:${12+Math.random()*18}px;animation-duration:${5+Math.random()*4}s;position:fixed;pointer-events:none;`;document.body.appendChild(h);setTimeout(()=>h.remove(),9000);}
+setInterval(spawnH,1200);
+
+function burstAt(cx,cy){
+  for(let i=0;i<8;i++){const h=document.createElement('div');h.className='burst';h.innerHTML=em[Math.floor(Math.random()*em.length)];h.style.left=cx+'px';h.style.top=cy+'px';document.body.appendChild(h);const a=Math.random()*Math.PI*2,d=50+Math.random()*80;setTimeout(()=>{h.style.transform=`translate(${Math.cos(a)*d}px,${Math.sin(a)*d}px)`;h.style.opacity='0';},10);setTimeout(()=>h.remove(),950);}
+}
+</script>
+</body>
+</html>

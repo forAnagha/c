@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>For Anagha 🌸</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Sans:wght@300;400&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+
+:root{
+  --pink:#ff6b9d;
+  --pink-dark:#d63068;
+  --rose:#ffe0ec;
+  --cream:#fff9f5;
+  --deep:#1a0a12;
+}
+
+html,body{
+  width:100%;height:100%;
+  background:var(--deep);
+  color:#fff;
+  font-family:'Cormorant Garamond',serif;
+  overflow:hidden;
+  user-select:none;
+}
+
+/* ── CANVAS BACKGROUND ── */
+#bg-canvas{
+  position:fixed;inset:0;z-index:0;
+}
+
+/* ── LOADER ── */
+#loader{
+  position:fixed;inset:0;z-index:1000;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  gap:28px;
+  background:var(--deep);
+  transition:opacity 1s, transform 1s;
+}
+#loader.gone{opacity:0;pointer-events:none;}
+
+.loader-title{
+  font-size:clamp(28px,7vw,56px);
+  font-weight:300;
+  letter-spacing:0.12em;
+  background:linear-gradient(135deg,#ff6b9d,#ffb3d1,#ff6b9d);
+  background-size:200%;
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  animation:shimmer 3s linear infinite;
+}
+
+@keyframes shimmer{
+  0%{background-position:0%}100%{background-position:200%}
+}
+
+.tap-prompt{
+  font-family:'DM Sans',sans-serif;
+  font-size:13px;
+  letter-spacing:0.18em;
+  color:rgba(255,255,255,0.4);
+  text-transform:uppercase;
+}
+
+/* Tap circles */
+.tap-circles{
+  display:flex;gap:14px;align-items:center;
+}
+.tap-dot{
+  width:14px;height:14px;
+  border-radius:50%;
+  border:1.5px solid rgba(255,107,157,0.35);
+  background:transparent;
+  transition:background 0.4s, border-color 0.4s, transform 0.3s;
+}
+.tap-dot.filled{
+  background:#ff6b9d;
+  border-color:#ff6b9d;
+  transform:scale(1.15);
+}
+
+#tap-btn{
+  padding:14px 36px;
+  border:1px solid rgba(255,107,157,0.5);
+  background:transparent;
+  color:#ff6b9d;
+  font-family:'Cormorant Garamond',serif;
+  font-size:18px;
+  letter-spacing:0.1em;
+  border-radius:100px;
+  cursor:pointer;
+  transition:background 0.3s, color 0.3s, transform 0.2s, border-color 0.3s;
+}
+#tap-btn:hover{
+  background:rgba(255,107,157,0.12);
+  border-color:#ff6b9d;
+}
+#tap-btn:active{transform:scale(0.97);}
+
+#loader-msg{
+  font-family:'DM Sans',sans-serif;
+  font-size:14px;
+  color:rgba(255,255,255,0.45);
+  letter-spacing:0.05em;
+  min-height:22px;
+  transition:opacity 0.4s;
+}
+
+.progress-bar{
+  width:180px;height:2px;
+  background:rgba(255,255,255,0.1);
+  border-radius:2px;
+  overflow:hidden;
+}
+.progress-fill{
+  height:100%;width:0%;
+  background:linear-gradient(90deg,#ff6b9d,#ffb3d1);
+  border-radius:2px;
+  transition:width 0.5s cubic-bezier(0.4,0,0.2,1);
+}
+
+/* ── MAIN CONTENT ── */
+#app{
+  position:fixed;inset:0;z-index:10;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+}
+
+/* slide hint */
+#slide-hint{
+  position:fixed;bottom:130px;left:50%;transform:translateX(-50%);
+  font-family:'DM Sans',sans-serif;
+  font-size:11px;letter-spacing:0.2em;text-transform:uppercase;
+  color:rgba(255,255,255,0.3);
+  display:flex;align-items:center;gap:8px;
+  transition:opacity 0.6s;
+  pointer-events:none;
+}
+#slide-hint.gone{opacity:0;}
+.hint-arrow{
+  width:28px;height:1px;background:rgba(255,255,255,0.3);
+  position:relative;
+}
+.hint-arrow::after{
+  content:'';position:absolute;right:-1px;top:-2.5px;
+  border:3px solid transparent;border-left:5px solid rgba(255,255,255,0.3);
+}
+
+/* slides */
+.slide{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:40px 24px 160px;
+  text-align:center;
+  opacity:0;
+  transform:translateX(60px);
+  transition:opacity 0.9s cubic-bezier(0.4,0,0.2,1), transform 0.9s cubic-bezier(0.4,0,0.2,1);
+  pointer-events:none;
+}
+.slide.active{
+  opacity:1;transform:translateX(0);
+  pointer-events:auto;
+}
+.slide.exit-left{
+  opacity:0;transform:translateX(-60px);
+}
+
+.slide-num{
+  font-family:'DM Sans',sans-serif;
+  font-size:11px;letter-spacing:0.25em;text-transform:uppercase;
+  color:rgba(255,255,255,0.2);
+  margin-bottom:32px;
+}
+
+.slide p{
+  font-size:clamp(22px,5vw,40px);
+  font-weight:300;
+  line-height:1.7;
+  color:rgba(255,255,255,0.92);
+  max-width:680px;
+  letter-spacing:0.01em;
+}
+.slide p em{
+  font-style:italic;
+  color:#ffb3d1;
+}
+.slide p strong{
+  font-weight:400;
+  color:#ff6b9d;
+}
+
+/* last slide */
+.slide-final p{
+  font-size:clamp(28px,7vw,58px);
+  font-weight:300;
+  letter-spacing:0.05em;
+}
+
+/* progress dots */
+#dots{
+  position:fixed;bottom:90px;left:50%;transform:translateX(-50%);
+  display:flex;gap:8px;z-index:20;
+}
+.dot{
+  width:5px;height:5px;border-radius:50%;
+  background:rgba(255,255,255,0.2);
+  transition:background 0.4s, transform 0.4s;
+}
+.dot.active{
+  background:#ff6b9d;
+  transform:scale(1.4);
+}
+
+/* nav buttons */
+#nav{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
+  display:flex;gap:12px;z-index:20;
+}
+.nav-btn{
+  width:44px;height:44px;border-radius:50%;
+  border:1px solid rgba(255,255,255,0.15);
+  background:rgba(255,255,255,0.05);
+  color:rgba(255,255,255,0.6);
+  font-size:18px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:all 0.25s;
+  backdrop-filter:blur(8px);
+}
+.nav-btn:hover{
+  border-color:rgba(255,107,157,0.5);
+  background:rgba(255,107,157,0.1);
+  color:#ff6b9d;
+}
+
+/* page nav links */
+#page-nav{
+  position:fixed;top:24px;left:50%;transform:translateX(-50%);
+  display:flex;gap:12px;z-index:20;
+  opacity:0;transition:opacity 0.8s;
+}
+#page-nav.visible{opacity:1;}
+.page-link{
+  padding:9px 20px;
+  border:1px solid rgba(255,107,157,0.35);
+  border-radius:100px;
+  background:rgba(255,255,255,0.03);
+  color:rgba(255,255,255,0.7);
+  text-decoration:none;
+  font-family:'DM Sans',sans-serif;
+  font-size:12px;
+  letter-spacing:0.1em;
+  text-transform:uppercase;
+  transition:all 0.3s;
+  backdrop-filter:blur(12px);
+  white-space:nowrap;
+}
+.page-link:hover{
+  border-color:#ff6b9d;
+  color:#ff6b9d;
+  background:rgba(255,107,157,0.08);
+}
+
+/* floating hearts */
+.fheart{
+  position:fixed;
+  pointer-events:none;
+  font-size:18px;
+  animation:rise 7s linear forwards;
+  z-index:5;
+}
+@keyframes rise{
+  0%{transform:translateY(0) rotate(-15deg);opacity:0.3;}
+  30%{opacity:0.5;}
+  100%{transform:translateY(-100vh) rotate(15deg);opacity:0;}
+}
+
+/* click burst */
+.burst-heart{
+  position:fixed;pointer-events:none;z-index:100;
+  font-size:20px;
+  transition:all 0.9s cubic-bezier(0.2,0,0.8,1);
+}
+
+/* typewriter cursor */
+.cursor-blink{
+  display:inline-block;width:2px;height:0.85em;
+  background:#ff6b9d;margin-left:2px;vertical-align:text-bottom;
+  animation:blink 0.9s step-end infinite;
+}
+@keyframes blink{50%{opacity:0;}}
+
+/* GIF decorations on specific slides */
+.slide-gif{
+  width:min(260px,65vw);
+  border-radius:16px;
+  margin-bottom:28px;
+  box-shadow:0 0 50px rgba(255,107,157,0.25);
+  opacity:0.9;
+}
+</style>
+</head>
+<body>
+
+<canvas id="bg-canvas"></canvas>
+<audio id="bgMusic" loop><source src="music1.mpeg" type="audio/mpeg"></audio>
+
+<!-- LOADER -->
+<div id="loader">
+  <div class="loader-title">For Anagha</div>
+  <div class="tap-circles" id="tap-circles">
+    <div class="tap-dot" id="d1"></div>
+    <div class="tap-dot" id="d2"></div>
+    <div class="tap-dot" id="d3"></div>
+    <div class="tap-dot" id="d4"></div>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="prog"></div></div>
+  <button id="tap-btn">tap ♡</button>
+  <div id="loader-msg">tap 4 times to begin</div>
+</div>
+
+<!-- PAGE NAV -->
+<div id="page-nav">
+  <a href="poem.html" class="page-link">🌸 poem</a>
+  <a href="gallery.html" class="page-link">✨ gallery</a>
+  <a href="reasons.html" class="page-link">💌 reasons</a>
+</div>
+
+<!-- SLIDES -->
+<div id="app">
+
+  <div class="slide active" id="s0">
+    <div class="slide-num">01</div>
+    <p>It's funny how some things start<br><em>completely by accident.</em></p>
+  </div>
+
+  <div class="slide" id="s1">
+    <div class="slide-num">02</div>
+    <p>A random DT project.<br>A group that almost didn't happen.</p>
+  </div>
+
+  <div class="slide" id="s2">
+    <div class="slide-num">03</div>
+    <p>Everyone had said good night…<br><em>but somehow we hadn't.</em></p>
+  </div>
+
+  <div class="slide" id="s3">
+    <div class="slide-num">04</div>
+    <p>One conversation turned into hours<br>and I still don't know how <strong>you did that to me.</strong></p>
+  </div>
+
+  <div class="slide" id="s4">
+    <div class="slide-num">05</div>
+    <p>Somewhere between that first late night<br>and a hundred others after,<br><em>you quietly became my favourite part of every day.</em></p>
+  </div>
+
+  <div class="slide" id="s5">
+    <div class="slide-num">06</div>
+    <p>You can't fake anything about yourself —<br>and honestly, that's one of the most<br><strong>rare, beautiful things</strong> about you.</p>
+  </div>
+
+  <div class="slide" id="s6">
+    <div class="slide-num">07</div>
+    <p>The more I get to know you,<br>the more I realise<br><em>you're something I can't quite put into words.</em></p>
+  </div>
+
+  <div class="slide" id="s7">
+    <div class="slide-num">08</div>
+    <p>Some stories start loud.<br>Ours started quietly<br>with one late-night conversation —<br><em>and somehow it became my favourite story.</em></p>
+  </div>
+
+  <div class="slide slide-final" id="s8">
+    <p>I love you, Anagha. <strong>❤️</strong></p>
+  </div>
+
+</div>
+
+<!-- DOTS -->
+<div id="dots"></div>
+
+<!-- NAV -->
+<div id="nav" style="display:none;">
+  <button class="nav-btn" id="prev-btn">←</button>
+  <button class="nav-btn" id="next-btn">→</button>
+</div>
+
+<!-- HINT -->
+<div id="slide-hint">
+  <span>swipe</span>
+  <div class="hint-arrow"></div>
+</div>
+
+<script>
+const music = document.getElementById('bgMusic');
+const loader = document.getElementById('loader');
+const prog = document.getElementById('prog');
+const loaderMsg = document.getElementById('loader-msg');
+const tapBtn = document.getElementById('tap-btn');
+const pageNav = document.getElementById('page-nav');
+const nav = document.getElementById('nav');
+const hint = document.getElementById('slide-hint');
+
+const slides = document.querySelectorAll('.slide');
+const dotsContainer = document.getElementById('dots');
+let current = 0;
+let taps = 0;
+let hintGone = false;
+
+// restore music
+window.addEventListener('load', () => {
+  const t = sessionStorage.getItem('mTime');
+  if(t) music.currentTime = parseFloat(t);
+  if(sessionStorage.getItem('started')){
+    dismissLoader();
+  }
+  music.play().catch(()=>{});
+});
+
+setInterval(()=>{ sessionStorage.setItem('mTime', music.currentTime); },1000);
+
+// build dots
+slides.forEach((_,i)=>{
+  const d = document.createElement('div');
+  d.className = 'dot' + (i===0?' active':'');
+  dotsContainer.appendChild(d);
+});
+
+function updateDots(){
+  dotsContainer.querySelectorAll('.dot').forEach((d,i)=>{
+    d.classList.toggle('active', i===current);
+  });
+}
+
+function goTo(index){
+  const prev = current;
+  slides[prev].classList.remove('active');
+  slides[prev].classList.add('exit-left');
+  setTimeout(()=> slides[prev].classList.remove('exit-left'), 900);
+
+  current = (index + slides.length) % slides.length;
+  slides[current].classList.add('active');
+  updateDots();
+  hideHint();
+}
+
+function hideHint(){
+  if(!hintGone){ hintGone=true; hint.classList.add('gone'); }
+}
+
+document.getElementById('prev-btn').addEventListener('click',()=> goTo(current-1));
+document.getElementById('next-btn').addEventListener('click',()=> goTo(current+1));
+
+document.addEventListener('keydown',(e)=>{
+  if(e.key==='ArrowRight') goTo(current+1);
+  if(e.key==='ArrowLeft') goTo(current-1);
+});
+
+let startX = 0;
+document.addEventListener('touchstart',(e)=>{ startX=e.touches[0].clientX; });
+document.addEventListener('touchend',(e)=>{
+  const dx = e.changedTouches[0].clientX - startX;
+  if(dx < -50) goTo(current+1);
+  if(dx > 50) goTo(current-1);
+});
+
+// LOADER TAP
+const msgs = ['almost…','keep going…','one more ♡',''];
+const dots = [document.getElementById('d1'),document.getElementById('d2'),document.getElementById('d3'),document.getElementById('d4')];
+
+tapBtn.addEventListener('click',(e)=>{
+  e.stopPropagation();
+  if(taps >= 4) return;
+  music.play().catch(()=>{});
+  taps++;
+  prog.style.width = (taps*25)+'%';
+  dots[taps-1].classList.add('filled');
+  loaderMsg.style.opacity='0';
+  setTimeout(()=>{
+    if(taps===4){
+      loaderMsg.textContent = 'nvm… I just love you so much ❤️';
+    } else {
+      loaderMsg.textContent = msgs[taps-1];
+    }
+    loaderMsg.style.opacity='1';
+  },300);
+
+  if(taps===4){
+    setTimeout(()=>{ dismissLoader(); },2800);
+  }
+});
+
+function dismissLoader(){
+  sessionStorage.setItem('started','1');
+  loader.classList.add('gone');
+  setTimeout(()=>{ loader.style.display='none'; },1200);
+  pageNav.classList.add('visible');
+  nav.style.display='flex';
+}
+
+// PARTICLES
+const canvas = document.getElementById('bg-canvas');
+const ctx = canvas.getContext('2d');
+let W,H,particles=[];
+
+function resize(){
+  W=canvas.width=window.innerWidth;
+  H=canvas.height=window.innerHeight;
+}
+resize();
+window.addEventListener('resize',resize);
+
+class Particle{
+  constructor(){this.reset();}
+  reset(){
+    this.x=Math.random()*W;
+    this.y=Math.random()*H;
+    this.r=Math.random()*1.5+0.4;
+    this.alpha=Math.random()*0.4+0.05;
+    this.speed=Math.random()*0.25+0.08;
+    this.drift=(Math.random()-0.5)*0.3;
+  }
+  update(){
+    this.y-=this.speed;
+    this.x+=this.drift;
+    if(this.y<-10) this.reset(), this.y=H+10;
+  }
+  draw(){
+    ctx.beginPath();
+    ctx.arc(this.x,this.y,this.r,0,Math.PI*2);
+    ctx.fillStyle=`rgba(255,107,157,${this.alpha})`;
+    ctx.fill();
+  }
+}
+
+for(let i=0;i<90;i++) particles.push(new Particle());
+
+function loop(){
+  ctx.clearRect(0,0,W,H);
+  particles.forEach(p=>{ p.update(); p.draw(); });
+  requestAnimationFrame(loop);
+}
+loop();
+
+// FLOATING HEARTS
+const emoji=['❤️','🩷','💗','💖','💝','🌸'];
+function spawnHeart(){
+  const h=document.createElement('div');
+  h.className='fheart';
+  h.innerHTML=emoji[Math.floor(Math.random()*emoji.length)];
+  h.style.left=Math.random()*100+'vw';
+  h.style.bottom='-30px';
+  h.style.fontSize=(14+Math.random()*22)+'px';
+  h.style.animationDuration=(5+Math.random()*4)+'s';
+  document.body.appendChild(h);
+  setTimeout(()=>h.remove(),9000);
+}
+setInterval(spawnHeart,1100);
+
+// CLICK BURST
+document.addEventListener('click',(e)=>{
+  if(e.target===tapBtn || loader.style.display!=='none' && !loader.classList.contains('gone')) return;
+  for(let i=0;i<7;i++){
+    const h=document.createElement('div');
+    h.className='burst-heart';
+    h.innerHTML=emoji[Math.floor(Math.random()*emoji.length)];
+    h.style.left=e.clientX+'px';
+    h.style.top=e.clientY+'px';
+    h.style.fontSize='22px';
+    document.body.appendChild(h);
+    const angle=Math.random()*Math.PI*2;
+    const dist=60+Math.random()*80;
+    setTimeout(()=>{
+      h.style.transform=`translate(${Math.cos(angle)*dist}px,${Math.sin(angle)*dist}px)`;
+      h.style.opacity='0';
+    },10);
+    setTimeout(()=>h.remove(),950);
+  }
+});
+</script>
+</body>
+</html>

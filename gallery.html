@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gallery — Anagha ✨</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Sans:wght@300;400&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{--pink:#ff6b9d;--deep:#1a0a12;}
+
+html,body{width:100%;height:100%;overflow:hidden;background:var(--deep);color:#fff;font-family:'Cormorant Garamond',serif;user-select:none;}
+
+canvas#bg{position:fixed;inset:0;z-index:0;pointer-events:none;}
+
+/* NAV */
+#topbar{
+  position:fixed;top:0;left:0;right:0;z-index:200;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 24px;
+}
+.back{font-family:'DM Sans',sans-serif;font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:rgba(255,255,255,0.35);text-decoration:none;transition:color 0.3s;}
+.back:hover{color:#ff6b9d;}
+.nav-pills{display:flex;gap:8px;}
+.pill{padding:7px 14px;border:1px solid rgba(255,107,157,0.3);border-radius:100px;background:rgba(255,255,255,0.03);color:rgba(255,255,255,0.45);text-decoration:none;font-family:'DM Sans',sans-serif;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;transition:all 0.3s;backdrop-filter:blur(10px);}
+.pill:hover{border-color:#ff6b9d;color:#ff6b9d;}
+
+/* SLIDE COUNTER */
+#counter{
+  position:fixed;top:16px;left:50%;transform:translateX(-50%);
+  font-family:'DM Sans',sans-serif;font-size:11px;letter-spacing:0.2em;
+  color:rgba(255,255,255,0.25);z-index:200;
+  text-transform:uppercase;
+}
+
+/* SLIDES CONTAINER */
+#stage{
+  position:fixed;inset:0;z-index:10;
+  display:flex;align-items:center;justify-content:center;
+}
+
+.slide{
+  position:absolute;inset:0;
+  display:grid;
+  align-items:center;justify-items:center;
+  padding:80px 24px 100px;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity 0.7s ease, transform 0.7s cubic-bezier(0.4,0,0.2,1);
+  transform:scale(1.04);
+}
+.slide.active{opacity:1;transform:scale(1);pointer-events:auto;}
+.slide.exit{opacity:0;transform:scale(0.96);}
+
+/* layout variants */
+.slide.layout-center{
+  grid-template-rows:auto auto;
+  grid-template-columns:1fr;
+  text-align:center;
+  justify-items:center;
+}
+.slide.layout-left{
+  grid-template-columns:1fr 1fr;
+  grid-template-rows:1fr;
+  text-align:left;
+  gap:40px;
+  padding:80px 60px 100px;
+  align-items:center;
+}
+.slide.layout-right{
+  grid-template-columns:1fr 1fr;
+  grid-template-rows:1fr;
+  text-align:left;
+  gap:40px;
+  padding:80px 60px 100px;
+  align-items:center;
+}
+.slide.layout-full{
+  grid-template-rows:1fr;
+  grid-template-columns:1fr;
+  text-align:center;
+  align-items:center;
+  justify-items:center;
+}
+
+/* media */
+.slide-media{
+  display:flex;align-items:center;justify-content:center;
+}
+.slide-media img, .slide-media .gif-box{
+  max-width:100%;max-height:55vh;
+  border-radius:16px;
+  box-shadow:0 0 60px rgba(255,107,157,0.2), 0 0 0 1px rgba(255,107,157,0.1);
+  object-fit:cover;
+}
+
+/* gif placeholder box — replace src with actual gif */
+.gif-box{
+  width:min(320px,70vw);height:min(240px,45vh);
+  background:linear-gradient(135deg,rgba(255,107,157,0.08),rgba(255,107,157,0.02));
+  border-radius:16px;
+  border:1px solid rgba(255,107,157,0.15);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:12px;overflow:hidden;position:relative;
+}
+.gif-box img{
+  width:100%;height:100%;object-fit:cover;
+  border-radius:16px;
+}
+.gif-box .placeholder-text{
+  font-family:'DM Sans',sans-serif;font-size:12px;
+  letter-spacing:0.1em;color:rgba(255,107,157,0.4);text-transform:uppercase;
+  position:absolute;
+}
+
+/* text block */
+.slide-text{
+  display:flex;flex-direction:column;gap:12px;
+}
+.slide-label{
+  font-family:'DM Sans',sans-serif;font-size:10px;
+  letter-spacing:0.3em;text-transform:uppercase;
+  color:rgba(255,107,157,0.45);
+}
+.slide-title{
+  font-size:clamp(26px,5vw,44px);font-weight:300;
+  line-height:1.25;letter-spacing:0.03em;
+  color:rgba(255,255,255,0.92);
+}
+.slide-title em{font-style:italic;color:#ffb3d1;}
+.slide-title strong{font-weight:400;color:#ff6b9d;}
+.slide-body{
+  font-size:clamp(16px,2.5vw,22px);font-weight:300;
+  line-height:1.75;color:rgba(255,255,255,0.6);
+  max-width:420px;
+}
+
+/* title-only slide */
+.slide-only{
+  font-size:clamp(30px,7vw,60px);font-weight:300;
+  letter-spacing:0.04em;
+  background:linear-gradient(135deg,#ff6b9d,#ffb3d1,#ff6b9d);
+  background-size:200%;
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  animation:sh 4s linear infinite;
+}
+@keyframes sh{0%{background-position:0%}100%{background-position:200%}}
+
+/* PROGRESS BAR */
+#pbar{
+  position:fixed;bottom:0;left:0;right:0;height:2px;
+  background:rgba(255,255,255,0.06);z-index:200;
+}
+#pfill{
+  height:100%;background:linear-gradient(90deg,#ff6b9d,#ffb3d1);
+  transition:width 0.5s ease;
+}
+
+/* CONTROLS */
+#controls{
+  position:fixed;bottom:22px;left:50%;transform:translateX(-50%);
+  display:flex;gap:10px;z-index:200;
+}
+.ctrl{
+  width:46px;height:46px;border-radius:50%;
+  border:1px solid rgba(255,255,255,0.12);
+  background:rgba(255,255,255,0.04);
+  color:rgba(255,255,255,0.55);font-size:18px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:all 0.25s;backdrop-filter:blur(8px);
+}
+.ctrl:hover{border-color:rgba(255,107,157,0.5);color:#ff6b9d;background:rgba(255,107,157,0.1);}
+
+/* DOTS */
+#pdots{
+  position:fixed;bottom:80px;left:50%;transform:translateX(-50%);
+  display:flex;gap:6px;z-index:200;
+  flex-wrap:wrap;justify-content:center;max-width:80vw;
+}
+.pdot{
+  width:5px;height:5px;border-radius:50%;
+  background:rgba(255,255,255,0.18);
+  transition:background 0.4s, transform 0.4s;
+}
+.pdot.active{background:#ff6b9d;transform:scale(1.5);}
+
+/* hearts */
+.fheart{position:fixed;pointer-events:none;z-index:5;animation:rise 7s linear forwards;}
+@keyframes rise{0%{transform:translateY(0) rotate(-15deg);opacity:0.25;}100%{transform:translateY(-100vh) rotate(15deg);opacity:0;}}
+.burst{position:fixed;pointer-events:none;z-index:300;font-size:20px;transition:all 0.9s cubic-bezier(0.2,0,0.8,1);}
+
+/* Slide hint */
+#hint{position:fixed;bottom:65px;left:50%;transform:translateX(-50%);font-family:'DM Sans',sans-serif;font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.2);pointer-events:none;transition:opacity 0.6s;}
+#hint.gone{opacity:0;}
+</style>
+</head>
+<body>
+
+<canvas id="bg"></canvas>
+<audio id="bgMusic" loop><source src="music1.mpeg" type="audio/mpeg"></audio>
+
+<div id="topbar">
+  <a href="index.html" class="back">← home</a>
+  <div class="nav-pills">
+    <a href="poem.html" class="pill">poem</a>
+    <a href="reasons.html" class="pill">reasons</a>
+  </div>
+</div>
+
+<div id="counter">01 / 10</div>
+
+<div id="stage">
+
+  <!-- SLIDE 0: Title -->
+  <div class="slide layout-full active" id="sl0">
+    <div class="slide-only">You & everything you are ✨</div>
+  </div>
+
+  <!-- SLIDE 1: GIF + caption (left layout) -->
+  <div class="slide layout-left" id="sl1">
+    <div class="slide-media">
+      <div class="gif-box">
+        <!-- Replace src with your actual gif file, e.g. src="gif1.gif" -->
+        <img src="gif1.gif" alt="gif 1" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <span class="placeholder-text">✦ place gif1.gif here ✦</span>
+      </div>
+    </div>
+    <div class="slide-text">
+      <span class="slide-label">her smile</span>
+      <div class="slide-title">Your smile is my<br><em>favourite view</em><br>in the world.</div>
+    </div>
+  </div>
+
+  <!-- SLIDE 2: GIF right -->
+  <div class="slide layout-right" id="sl2">
+    <div class="slide-text">
+      <span class="slide-label">her eyes</span>
+      <div class="slide-title">Your eyes hold<br>more warmth<br>than the <strong>sun.</strong></div>
+      <div class="slide-body">And I could look at them forever.</div>
+    </div>
+    <div class="slide-media">
+      <div class="gif-box">
+        <img src="gif2.gif" alt="gif 2" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <span class="placeholder-text">✦ place gif2.gif here ✦</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 3: Full width GIF -->
+  <div class="slide layout-center" id="sl3">
+    <div class="slide-media" style="margin-bottom:28px;">
+      <div class="gif-box" style="width:min(400px,80vw);height:min(280px,40vh);">
+        <img src="gif3.gif" alt="gif 3" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <span class="placeholder-text">✦ place gif3.gif here ✦</span>
+      </div>
+    </div>
+    <div class="slide-text" style="text-align:center;align-items:center;">
+      <span class="slide-label">her heart</span>
+      <div class="slide-title">So pure it doesn't<br>even feel real.</div>
+    </div>
+  </div>
+
+  <!-- SLIDE 4: Left layout with photo -->
+  <div class="slide layout-left" id="sl4">
+    <div class="slide-media">
+      <div class="gif-box">
+        <img src="photo1.jpg" alt="photo 1" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <span class="placeholder-text">✦ photo1.jpg ✦</span>
+      </div>
+    </div>
+    <div class="slide-text">
+      <span class="slide-label">she is</span>
+      <div class="slide-title">Kind.<br><em>So deeply,</em><br>quietly kind.</div>
+    </div>
+  </div>
+
+  <!-- SLIDE 5: Quote slide -->
+  <div class="slide layout-center" id="sl5">
+    <div class="slide-text" style="text-align:center;max-width:600px;">
+      <span class="slide-label">always</span>
+      <div class="slide-title" style="font-size:clamp(22px,4vw,38px);line-height:1.5;">
+        She cares deeply<br>about everyone around her.<br><em>She makes life feel lighter</em><br>and happier.
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 6: GIF + text right -->
+  <div class="slide layout-right" id="sl6">
+    <div class="slide-text">
+      <span class="slide-label">and also</span>
+      <div class="slide-title">She's <strong>cool</strong> as hell 😎</div>
+      <div class="slide-body">Like effortlessly, naturally cool.<br>You can't learn that.</div>
+    </div>
+    <div class="slide-media">
+      <div class="gif-box">
+        <img src="gif4.gif" alt="gif 4" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <span class="placeholder-text">✦ place gif4.gif here ✦</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 7: Photo left -->
+  <div class="slide layout-left" id="sl7">
+    <div class="slide-media">
+      <div class="gif-box">
+        <img src="photo2.jpg" alt="photo 2" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <span class="placeholder-text">✦ photo2.jpg ✦</span>
+      </div>
+    </div>
+    <div class="slide-text">
+      <span class="slide-label">what I see</span>
+      <div class="slide-title">The most<br>beautiful woman<br>in my life.</div>
+      <div class="slide-body">Inside and out. Always.</div>
+    </div>
+  </div>
+
+  <!-- SLIDE 8: Center GIF + big quote -->
+  <div class="slide layout-center" id="sl8">
+    <div class="slide-media" style="margin-bottom:32px;">
+      <div class="gif-box" style="width:min(360px,75vw);height:min(260px,38vh);">
+        <img src="gif5.gif" alt="gif 5" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <span class="placeholder-text">✦ place gif5.gif here ✦</span>
+      </div>
+    </div>
+    <div class="slide-text" style="text-align:center;">
+      <span class="slide-label">the truth</span>
+      <div class="slide-title">Not just beautiful outside —<br><em>her heart is even more beautiful.</em></div>
+    </div>
+  </div>
+
+  <!-- SLIDE 9: Ending -->
+  <div class="slide layout-full" id="sl9">
+    <div style="text-align:center;">
+      <div class="slide-label" style="margin-bottom:24px;display:block;">always & forever</div>
+      <div class="slide-only">I love you, Anagha ❤️</div>
+      <div style="margin-top:32px;font-style:italic;color:rgba(255,255,255,0.35);font-size:18px;line-height:1.6;">
+        You're something rare.<br>Something truly special.
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div id="pdots"></div>
+<div id="hint">swipe →</div>
+
+<div id="controls">
+  <button class="ctrl" id="prev">←</button>
+  <button class="ctrl" id="next">→</button>
+</div>
+
+<div id="pbar"><div id="pfill" style="width:10%"></div></div>
+
+<script>
+const music = document.getElementById('bgMusic');
+window.addEventListener('load',()=>{
+  const t=sessionStorage.getItem('mTime'); if(t) music.currentTime=parseFloat(t);
+  music.volume=0;
+  music.play().then(()=>{let v=0,f=setInterval(()=>{if(v<1){v=Math.min(1,v+0.04);music.volume=v;}else clearInterval(f);},80);}).catch(()=>{
+    const r=()=>{music.play();document.removeEventListener('click',r);};
+    document.addEventListener('click',r);
+  });
+});
+setInterval(()=>{sessionStorage.setItem('mTime',music.currentTime);},1000);
+
+const slides=document.querySelectorAll('.slide');
+const N=slides.length;
+let cur=0,hintGone=false;
+
+// dots
+const dotsEl=document.getElementById('pdots');
+slides.forEach((_,i)=>{const d=document.createElement('div');d.className='pdot'+(i===0?' active':'');dotsEl.appendChild(d);});
+const counterEl=document.getElementById('counter');
+
+function updateUI(){
+  dotsEl.querySelectorAll('.pdot').forEach((d,i)=>d.classList.toggle('active',i===cur));
+  counterEl.textContent=String(cur+1).padStart(2,'0')+' / '+String(N).padStart(2,'0');
+  document.getElementById('pfill').style.width=((cur+1)/N*100)+'%';
+}
+
+function goTo(index){
+  slides[cur].classList.remove('active');
+  slides[cur].classList.add('exit');
+  setTimeout(()=>slides[cur>-1?cur:0].classList.remove('exit'),700);
+  cur=((index%N)+N)%N;
+  slides[cur].classList.add('active');
+  updateUI();
+  if(!hintGone){hintGone=true;document.getElementById('hint').classList.add('gone');}
+}
+
+document.getElementById('prev').addEventListener('click',()=>goTo(cur-1));
+document.getElementById('next').addEventListener('click',()=>goTo(cur+1));
+document.addEventListener('keydown',(e)=>{if(e.key==='ArrowRight')goTo(cur+1);if(e.key==='ArrowLeft')goTo(cur-1);});
+let sx=0;
+document.addEventListener('touchstart',(e)=>{sx=e.touches[0].clientX;});
+document.addEventListener('touchend',(e)=>{const dx=e.changedTouches[0].clientX-sx;if(dx<-50)goTo(cur+1);if(dx>50)goTo(cur-1);});
+
+// particles
+const canvas=document.getElementById('bg'),ctx=canvas.getContext('2d');
+let W,H,pts=[];
+function resize(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight;}
+resize();window.addEventListener('resize',resize);
+class Pt{constructor(){this.reset();}reset(){this.x=Math.random()*W;this.y=H+10;this.r=Math.random()*1.4+0.3;this.alpha=Math.random()*0.35+0.05;this.speed=Math.random()*0.22+0.07;this.drift=(Math.random()-0.5)*0.28;}tick(){this.y-=this.speed;this.x+=this.drift;if(this.y<-10)this.reset();}draw(){ctx.beginPath();ctx.arc(this.x,this.y,this.r,0,Math.PI*2);ctx.fillStyle=`rgba(255,107,157,${this.alpha})`;ctx.fill();}}
+for(let i=0;i<80;i++)pts.push(new Pt());
+function loop(){ctx.clearRect(0,0,W,H);pts.forEach(p=>{p.tick();p.draw();});requestAnimationFrame(loop);}
+loop();
+
+// hearts
+const em=['❤️','🩷','💗','💖','🌸','✨'];
+function spawnH(){const h=document.createElement('div');h.className='fheart';h.innerHTML=em[Math.floor(Math.random()*em.length)];h.style.cssText=`left:${Math.random()*100}vw;bottom:-30px;font-size:${12+Math.random()*18}px;animation-duration:${5+Math.random()*4}s;position:fixed;pointer-events:none;`;document.body.appendChild(h);setTimeout(()=>h.remove(),9000);}
+setInterval(spawnH,1100);
+
+document.addEventListener('click',(e)=>{
+  if(e.target.closest('#controls,.back,.pill,#topbar')) return;
+  for(let i=0;i<6;i++){const h=document.createElement('div');h.className='burst';h.innerHTML=em[Math.floor(Math.random()*em.length)];h.style.left=e.clientX+'px';h.style.top=e.clientY+'px';document.body.appendChild(h);const a=Math.random()*Math.PI*2,d=50+Math.random()*70;setTimeout(()=>{h.style.transform=`translate(${Math.cos(a)*d}px,${Math.sin(a)*d}px)`;h.style.opacity='0';},10);setTimeout(()=>h.remove(),950);}
+});
+</script>
+</body>
+</html>
